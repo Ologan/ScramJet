@@ -4,6 +4,10 @@ Makefile
 Makefile.in
 autogen.sh
 m4
+config.h
+config.log
+config.status
+stamp-h1
 config.guess
 config.h.in
 config.h.in~
