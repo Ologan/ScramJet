@@ -1,6 +1,14 @@
 # http://www.gnu.org/software/automake
 
+Makefile
 Makefile.in
+autogen.sh
+m4
+config.guess
+config.h.in
+config.h.in~
+config.sub
+ltmain.sh
 
 # http://www.gnu.org/software/autoconf
 
