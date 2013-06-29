@@ -1,4 +1,6 @@
 ScramJet
 ========
 
-Fast data processing
+Fast data processing for large collections.
+
+Array oriented processing.
