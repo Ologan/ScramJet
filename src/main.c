@@ -21,21 +21,6 @@
 #include <stdio.h>
 #include "sjarray.h"
 
-void print_array( const sj_array *array )
-{
-    puts("{");
-    for ( int i = 0; i < array->ndims; i++ )
-    {
-        printf("[");
-        for ( size_t j = 0; j < array->size[i]; j++ )
-        {
-            printf("%i ", array->data->i32[j] );
-        }
-        puts("]");
-    }
-    puts("}");
-}
-
 int
 main( int argc, char *argv[] )
 {
@@ -46,12 +31,12 @@ main( int argc, char *argv[] )
     {
         array->data[0].i32[i] = i;
     }
-    print_array( array );
+    sj_print_array( array );
 
     sj_value val;
     val.i32 = 5;
     sj_sum_constant( array, val );
-    print_array( array );
+    sj_print_array( array );
 
     sj_free_array( array );
     return 0;

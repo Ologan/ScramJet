@@ -17,6 +17,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with ScramJet.  If not, see <http://www.gnu.org/licenses/>.
 //
+#define __USE_XOPEN2K
+#include <stdio.h>
+
 #include "sjarray.h"
 
 #define BUFFER_SIZE 4096
@@ -83,6 +86,22 @@ sj_sum_constant( sj_array *array, sj_value value )
             memcpy( array->data->c+(j*BUFFER_SIZE), buffer, elementsInBuffer*sizeof(int32_t) );
         }
     }
+}
+
+
+void sj_print_array( const sj_array *array )
+{
+    puts("{");
+    for ( int i = 0; i < array->ndims; i++ )
+    {
+        printf("[");
+        for ( size_t j = 0; j < array->size[i]; j++ )
+        {
+            printf("%i ", array->data->i32[j] );
+        }
+        puts("]");
+    }
+    puts("}");
 }
 
 void

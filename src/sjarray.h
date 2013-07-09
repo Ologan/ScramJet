@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with ScramJet.  If not, see <http://www.gnu.org/licenses/>.
 //
-#define __USE_XOPEN2K
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -53,7 +52,6 @@ typedef struct
 } sj_array;
 
 sj_array* sj_create_array1( sj_type type, size_t size0 );
-
 void sj_sum_constant( sj_array *array, sj_value value );
-
 void sj_free_array( sj_array* array );
+void sj_print_array( const sj_array *array );
