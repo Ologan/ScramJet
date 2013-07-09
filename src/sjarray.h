@@ -1,6 +1,6 @@
 // ScramJet: fast data processing
 //
-// Copyright 2013 Alejo Sanchez 
+// Copyright 2013 Alejo Sanchez
 //
 // This file is part of ScramJet
 //
@@ -17,42 +17,43 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with ScramJet.  If not, see <http://www.gnu.org/licenses/>.
 //
+#define __USE_XOPEN2K
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
 
-#include <stdio.h>
-#include "sjarray.h"
+#define CACHE_ALIGNMENT 64
 
-void print_array( const sj_array *array )
+void* sj_malloc( size_t size );
+
+typedef enum
 {
-    puts("{");
-    for ( int i = 0; i < array->ndims; i++ )
-    {
-        printf("[");
-        for ( size_t j = 0; j < array->size[i]; j++ )
-        {
-            printf("%i ", array->data->i32[j] );
-        }
-        puts("]");
-    }
-    puts("}");
-}
+    SJ_I32
+} sj_type;
 
-int
-main( int argc, char *argv[] )
+typedef union
 {
-    static const int N = 10000;
-    sj_array *array = sj_create_array1( SJ_I32, N );
+    int32_t i32;
+} sj_value;
 
-    for ( int i = 0; i < N; i++ )
-    {
-        array->data[0].i32[i] = i;
-    }
-    print_array( array );
+typedef union
+{
+    void    *v;
+    char    *c;
+    int32_t *i32;
+} sj_data;
 
-    sj_value val;
-    val.i32 = 5;
-    sj_sum_constant( array, val );
-    print_array( array );
+typedef struct
+{
+    int      ndims;
+    size_t  *size;
+    sj_type  type;
+    size_t   typesize;
+    sj_data *data;
+} sj_array;
 
-    sj_free_array( array );
-    return 0;
-}
+sj_array* sj_create_array1( sj_type type, size_t size0 );
+
+void sj_sum_constant( sj_array *array, sj_value value );
+
+void sj_free_array( sj_array* array );
