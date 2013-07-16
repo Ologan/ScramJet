@@ -17,41 +17,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with ScramJet.  If not, see <http://www.gnu.org/licenses/>.
 //
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-
-#define CACHE_ALIGNMENT 64
-
-void* sj_malloc( size_t size );
-
-typedef enum
-{
-    SJ_I32
-} sj_type;
-
-typedef union
-{
-    int32_t i32;
-} sj_value;
-
-typedef union
-{
-    void    *v;
-    char    *c;
-    int32_t *i32;
-} sj_data;
+#include "sjvector.h"
 
 typedef struct
 {
-    int      ndims;
-    size_t  *size;
-    sj_type  type;
-    size_t   typesize;
-    sj_data *data;
-} sj_array;
 
-sj_array* sj_create_array1( sj_type type, size_t size0 );
-void sj_sum_constant( sj_array *array, sj_value value );
-void sj_free_array( sj_array* array );
-void sj_print_array( const sj_array *array );
+} sj_index;
+
+typedef struct
+{
+
+} sj_index_query_result;
+
+typedef enum
+{
+    SJ_OP_EQ,
+    SJ_OP_GT,
+    SJ_OP_GE,
+    SJ_OP_LT,
+    SJ_OP_LE
+} sj_operation;
+
+sj_index *sj_build_index( const sj_vector *vector );
+sj_index_query_result sj_query_index( sj_index *index, sj_value value, sj_operation op );
+void sj_free_index( sj_index *index );

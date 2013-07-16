@@ -1,6 +1,6 @@
 // ScramJet: fast data processing
 //
-// Copyright 2013 Alejo Sanchez 
+// Copyright 2013 Alejo Sanchez
 //
 // This file is part of ScramJet
 //
@@ -17,23 +17,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with ScramJet.  If not, see <http://www.gnu.org/licenses/>.
 //
+#include <stdlib.h>
 
-#include <stdio.h>
-#include "sjvector.h"
-
-int
-main( int argc, char *argv[] )
-{
-    static const int N = 10000;
-    sj_vector *vector = sj_create_vector( SJ_I32, N );
-
-    for ( int i = 0; i < N; i++ )
-    {
-        vector->data.i32[i] = i;
-    }
-    sj_print_vector( vector );
-
-
-    sj_free_vector( vector );
-    return 0;
-}
+void *sj_malloc( size_t size );
+void *sj_realloc( void *ptr, size_t size );
+void *sj_calloc( size_t num, size_t size );
+void *sj_crealloc( void *ptr, size_t num, size_t size );
+void sj_free( void *ptr );
