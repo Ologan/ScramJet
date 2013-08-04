@@ -20,20 +20,29 @@
 
 #include <stdio.h>
 #include "sjvector.h"
+#include "sjfunctions.h"
 
 int
 main( int argc, char *argv[] )
 {
     static const int N = 10000;
-    sj_vector *vector = sj_create_vector( SJ_I32, N );
+    sj_vector *vector1 = sj_vector_create( SJ_I32, N );
+    sj_vector *vector2 = sj_vector_create( SJ_I32, N );
 
-    for ( int i = 0; i < N; i++ )
-    {
-        vector->data.i32[i] = i;
-    }
-    sj_print_vector( vector );
+    sj_value value;
+    value.i32 = 1;
+    sj_vector_set( vector1, value );
 
+    value.i32 = 2;
+    sj_vector_set( vector2, value );
 
-    sj_free_vector( vector );
+    sj_vector *res = sj_vector_sum( vector1, vector2, NULL );
+
+    sj_vector_print( res );
+
+    sj_vector_free( res );
+    sj_vector_free( vector1 );
+    sj_vector_free( vector2 );
+
     return 0;
 }

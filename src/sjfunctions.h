@@ -18,10 +18,6 @@
 // along with ScramJet.  If not, see <http://www.gnu.org/licenses/>.
 //
 #pragma once
-#include <stdlib.h>
+#include "sjvector.h"
 
-void *sj_malloc( size_t size );
-void *sj_realloc( void *ptr, size_t size );
-void *sj_calloc( size_t num, size_t size );
-void *sj_crealloc( void *ptr, size_t num, size_t size );
-void sj_free( void *ptr );
+sj_vector* sj_vector_sum( const sj_vector *a, const sj_vector *b, sj_vector *dest );

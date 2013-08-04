@@ -14,6 +14,13 @@ sj_malloc( size_t size )
 
 /*************************************************************************/
 void*
+sj_calloc( size_t num, size_t size)
+{
+    return sj_malloc( num*size );
+}
+
+/*************************************************************************/
+void*
 sj_realloc( void *ptr, size_t size )
 {
     return realloc( ptr, size );

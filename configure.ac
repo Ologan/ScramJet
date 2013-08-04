@@ -9,7 +9,10 @@ LT_INIT
 AC_CONFIG_MACRO_DIR([m4])
 AC_CHECK_FUNCS([gettimeofday])
 AC_CHECK_FUNCS([strtol])
+AC_CHECK_FUNCS([mmap])
+AC_CHECK_HEADERS([sys/mman.h])
 AC_CHECK_HEADERS([sys/time.h])
+AC_CHECK_LIB([gomp],[GOMP_parallel_start])
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
 AC_PROG_CXX

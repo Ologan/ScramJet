@@ -17,12 +17,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with ScramJet.  If not, see <http://www.gnu.org/licenses/>.
 //
+#pragma once
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 
 #define CACHE_ALIGNMENT 64
-#define SJ_TYPE_SWITCH      // TODO: Make a "switch" statement for each data type
+#define SJ_TYPE_SWITCH switch     // TODO: Make a "switch" statement for each data type
 
 typedef enum
 {
@@ -40,26 +41,34 @@ typedef union
     int32_t i32;
 } sj_value;
 
-typedef union
-{
-    void    *v;
-    char    *c;
-    int32_t *i32;
-} sj_data;
-
 typedef struct
 {
     size_t   size;
     sj_type  type;
     size_t   elemsize;
-    sj_data  data;
+
+    union
+    {
+        void    *v;
+        char    *c;
+        int32_t *i32;
+    }        data;
 
     size_t   _alloced_elements;     /* Number of elements alloced */
 } sj_vector;
 
-sj_vector* sj_create_vector( sj_type type, size_t initial_size );
-sj_error sj_append_element( sj_vector *vector, sj_value value );
+typedef size_t sj_pos_t;
 
-//void sj_sum_constant( sj_array *array, sj_value value );
-void sj_free_vector( sj_vector* vector );
-void sj_print_vector( const sj_vector *vector );
+#define SJ_ITERATE_VECTOR(v, p)  for ( char *p = (v)->data.c; p < (v)->data.c+((v)->size*(v)->elemsize); p += (v)->elemsize )
+
+/* Basic vector operations */
+sj_vector* sj_vector_create( sj_type type, size_t initial_size );
+sj_vector* sj_vector_clone( const sj_vector* vector );
+sj_error sj_append_element( sj_vector* vector, sj_value value );
+void sj_vector_set( sj_vector* vector, sj_value value );
+void sj_vector_cast( sj_vector* vector, sj_type to_type );
+void sj_vector_free( sj_vector* vector );
+void sj_vector_print( const sj_vector* vector );
+sj_value sj_get_value( const sj_vector* vector, sj_pos_t pos);
+void* sj_get_value_ptr( const sj_vector* vector, sj_pos_t pos);
+size_t sj_typesize( sj_type type );

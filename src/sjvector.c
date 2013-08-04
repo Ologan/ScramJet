@@ -25,24 +25,16 @@
 
 #define BUFFER_SIZE 4096
 
-typedef void (*sj_buffer_process_fn)(void*, size_t, void*);
-
 /*************************************************************************/
 sj_vector*
-sj_create_vector( sj_type type, size_t initial_size )
+sj_vector_create( sj_type type, size_t initial_size )
 {
     sj_vector *vector = malloc( sizeof(sj_vector) );
     vector->type = type;
 
-    switch ( type )
-    {
-    case SJ_I32:
-        vector->elemsize = sizeof(int32_t);
-        break;
-    }
-
+    vector->elemsize = sj_typesize( type );
     vector->size = initial_size;
-    vector->data.v = sj_malloc( vector->elemsize*vector->size );
+    vector->data.v = sj_calloc( vector->size, vector->elemsize );
     vector->_alloced_elements = vector->size;
 
     return vector;
@@ -101,27 +93,81 @@ sj_sum_constant( sj_array *array, sj_value value )
 
 /*************************************************************************/
 sj_error
+sj_alloc_more_elements( sj_vector *vector, size_t num_elements )
+{
+    vector->data.v = sj_realloc( vector->data.v, vector->elemsize*(vector->_alloced_elements+num_elements) );
+    if ( !vector->data.v )
+        return SJ_MEMORY_ERROR;
+    vector->_alloced_elements += num_elements;
+}
+
+/*************************************************************************/
+sj_error
 sj_append_element( sj_vector *vector, sj_value value )
 {
     // Increase vector size in a 10% if necessary
     if ( vector->_alloced_elements == vector->size )
     {
-        vector->_alloced_elements += (vector->_alloced_elements / 10) + 1;
-        vector->data.v = sj_realloc( vector->data.v, vector->_alloced_elements*vector->elemsize );
-        if ( !vector->data.v )
-            return SJ_MEMORY_ERROR;
+        sj_error err = sj_alloc_more_elements( vector, (vector->_alloced_elements/10)+1 );
+        if ( err )
+            return err;
     }
 
     vector->size++;
 
-    SJ_TYPE_SWITCH
-    vector->data.i32[vector->size-1] = value.i32;
+    SJ_TYPE_SWITCH(vector->type)
+    {
+    case SJ_I32:
+        vector->data.i32[vector->size-1] = value.i32;
+        break;
+    }
 
     return SJ_OK;
 }
 
 /*************************************************************************/
-void sj_print_vector( const sj_vector *vector )
+void*
+sj_get_value_ptr(const sj_vector* vector, sj_pos_t pos )
+{
+    return vector->data.c + (vector->elemsize*pos);
+}
+
+/*************************************************************************/
+sj_value
+sj_get_value( const sj_vector* vector, sj_pos_t pos )
+{
+    void *value_ptr = sj_get_value_ptr( vector, pos );
+}
+
+/*************************************************************************/
+sj_vector*
+sj_vector_clone( const sj_vector* vector )
+{
+    sj_vector* cloned = sj_vector_create( vector->type, vector->size );
+    size_t num_bytes = vector->size*vector->elemsize;
+    memcpy( cloned->data.v, vector->data.v, num_bytes );
+    return cloned;
+}
+
+/*************************************************************************/
+void
+sj_vector_set( sj_vector* vector, sj_value value )
+{
+    SJ_TYPE_SWITCH(vector->type)
+    {
+    case SJ_I32:
+        #pragma omp parallel for
+        for (size_t i = 0; i < vector->size; i++)
+        {
+            vector->data.i32[i] = value.i32;
+        }
+        break;
+    }
+}
+
+/*************************************************************************/
+void
+sj_vector_print( const sj_vector* vector )
 {
     printf("[");
     for ( size_t i = 0; i < vector->size; i++ )
@@ -133,7 +179,46 @@ void sj_print_vector( const sj_vector *vector )
 
 /*************************************************************************/
 void
-sj_free_vector( sj_vector *vector )
+sj_vector_cast( sj_vector* vector, sj_type type )
+{
+    if ( type == vector->type )
+        return;
+
+    size_t new_typesize = sj_typesize( type );
+    char *casted_data = sj_calloc( vector->size, new_typesize );
+
+    char *ps = vector->data.c;
+    char *pd = casted_data;
+    sj_pos_t i;
+#define CAST_VALUE(psrc, pdest, typesrc, typedest) *((typedest*) pdest) = (typedest) *((typesrc*) psrc)
+    for (sj_pos_t i = 0; i < vector->size; i++)
+    {
+        // TODO: check ALL possible combinations
+        CAST_VALUE( ps, pd, int32_t, int32_t );
+
+        ps += vector->elemsize;
+        pd += new_typesize;
+    }
+
+    sj_free( vector->data.v );
+    vector->data.c = casted_data;
+    vector->type = type;
+    vector->elemsize = new_typesize;
+}
+
+/*************************************************************************/
+size_t
+sj_typesize( sj_type type )
+{
+    SJ_TYPE_SWITCH( type ) {
+    case SJ_I32: return sizeof(int32_t);
+    }
+    return 0;
+}
+
+/*************************************************************************/
+void
+sj_vector_free( sj_vector *vector )
 {
     sj_free( vector->data.v );
     sj_free( vector );
